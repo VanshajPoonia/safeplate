@@ -1,0 +1,16 @@
+{
+  "name": "safeplate",
+  "version": "1.0.0",
+  "description": "Allergy-aware meal planner that runs entirely on your own device",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "test": "node tests/run.mjs"
+  },
+  "devDependencies": {
+    "@huggingface/transformers": "^3.7.5",
+    "onnxruntime-node": "^1.23.0"
+  },
+  "license": "MIT"
+}

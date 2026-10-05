@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SafePlate</title>
+<meta name="description" content="An allergy-aware meal planner that catches the ingredient names nobody put on a list. Runs entirely on your own device." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>" />
+<link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">🍽️</span>
+    <div><h1>SafePlate</h1><p>Cook for someone with allergies without memorising a list of 400 words.</p></div>
+  </div>
+  <div class="engine" id="engineBadge" data-state="idle"><span class="dot"></span><span id="engineText">Model not loaded</span></div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="profile">Who am I cooking for</button>
+  <button class="tab" data-tab="scan">Check a recipe</button>
+  <button class="tab" data-tab="plan">Plan a week</button>
+</nav>
+
+<main>
+  <!-- ---------------- PROFILE ---------------- -->
+  <section class="panel" data-panel="profile">
+    <div class="row between">
+      <h2>Their profile</h2>
+      <input id="profileName" class="nameinput" placeholder="Their name" />
+    </div>
+    <p class="hint">This stays in this browser. It is medical information about someone else and it has no business on a server.</p>
+
+    <h3>Allergies and intolerances</h3>
+    <div id="familyGrid" class="grid"></div>
+
+    <h3>Anything else <span class="sub">— a specific ingredient, however obscure</span></h3>
+    <div class="row">
+      <input id="customInput" placeholder="e.g. buckwheat, mango, carmine" />
+      <select id="customSeverity">
+        <option value="anaphylactic">Anaphylactic</option>
+        <option value="severe" selected>Severe</option>
+        <option value="moderate">Moderate</option>
+        <option value="mild">Mild</option>
+      </select>
+      <button id="addCustom" class="ghost">Add</button>
+    </div>
+    <div id="customList" class="chips"></div>
+
+    <h3>Just dislikes <span class="sub">— not dangerous, still worth avoiding</span></h3>
+    <div class="row">
+      <input id="dislikeInput" placeholder="e.g. coriander, olives" />
+      <button id="addDislike" class="ghost">Add</button>
+    </div>
+    <div id="dislikeList" class="chips"></div>
+
+    <div class="row">
+      <button id="saveProfile" class="primary">Save profile</button>
+      <span class="stat" id="profileStat"></span>
+    </div>
+  </section>
+
+  <!-- ---------------- SCAN ---------------- -->
+  <section class="panel" data-panel="scan" hidden>
+    <h2>Check a recipe</h2>
+    <p class="hint">Paste an ingredient list. One per line, or comma separated. Each ingredient is scored against the allergen families <em>and</em> against ordinary foods; what counts is which it sits closer to. That is what catches names nobody wrote down.</p>
+    <textarea id="scanInput" rows="9" spellcheck="false" placeholder="200 g labneh&#10;a handful of kataifi pastry&#10;surimi sticks&#10;2 tbsp gomasio&#10;100 g panko breadcrumbs"></textarea>
+    <div class="row">
+      <button id="scanBtn" class="primary">Scan</button>
+      <button id="scanDemoBtn" class="ghost small">Load the hard examples</button>
+      <span class="stat" id="scanStat"></span>
+    </div>
+    <div id="scanVerdict"></div>
+    <div id="scanResults" class="results"></div>
+  </section>
+
+  <!-- ---------------- PLAN ---------------- -->
+  <section class="panel" data-panel="plan" hidden>
+    <h2>Plan a week</h2>
+    <p class="hint">Every recipe in the bank gets scanned against the profile first, then a week is built from the ones that pass.</p>
+    <div class="row">
+      <label>Max cooking time
+        <select id="maxMinutes">
+          <option value="999" selected>No limit</option>
+          <option value="20">20 minutes</option>
+          <option value="30">30 minutes</option>
+          <option value="45">45 minutes</option>
+        </select>
+      </label>
+      <label class="checkline"><input type="checkbox" id="allowCheck" /> Include "worth checking" recipes</label>
+      <button id="planBtn" class="primary">Build the week</button>
+      <span class="stat" id="planStat"></span>
+    </div>
+    <div class="progress" id="planProgress" hidden><div class="bar" id="planBar"></div></div>
+    <div id="planSummary"></div>
+    <div id="planMount" class="week"></div>
+    <div id="shopMount"></div>
+    <div class="row" id="planActions" hidden>
+      <button id="exportPlanBtn" class="ghost">Export plan + shopping list</button>
+      <button id="rerollBtn" class="ghost">Different week</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>
+    <strong>This is a cooking aid, not a medical device.</strong> It will catch things you would have
+    missed. It will not catch everything. Read the label.
+  </p>
+  <p>
+    Open weights: <a href="https://huggingface.co/BAAI/bge-small-en-v1.5" target="_blank" rel="noopener">bge-small-en-v1.5</a>
+    (Apache-2.0) via <a href="https://github.com/huggingface/transformers.js" target="_blank" rel="noopener">transformers.js</a>.
+    No API key, no server, no account. <a href="https://github.com/VanshajPoonia/safeplate" target="_blank" rel="noopener">Source</a>.
+  </p>
+</footer>
+
+<div class="loadbar" id="loadbar" hidden>
+  <div class="bar" id="loadbarFill"></div>
+  <span id="loadbarText"></span>
+</div>
+
+<script type="module" src="src/app.js"></script>
+</body>
+</html>

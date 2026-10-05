@@ -1,0 +1,89 @@
+[
+  {"id":"r01","name":"Chickpea & spinach curry","cuisine":"Indian","minutes":30,"serves":4,"aisle":"pantry",
+   "ingredients":["1 can chickpeas, drained","200 g spinach","1 onion, chopped","3 cloves garlic","1 tbsp ginger, grated","400 ml coconut milk","2 tsp garam masala","1 tsp turmeric","2 tbsp vegetable oil","salt to taste"],
+   "method":"Fry the onion, garlic and ginger. Add spices, then chickpeas and coconut milk. Simmer 15 minutes. Stir the spinach through at the end."},
+
+  {"id":"r02","name":"Lemon herb roast chicken thighs","cuisine":"Mediterranean","minutes":45,"serves":4,"aisle":"butcher",
+   "ingredients":["8 chicken thighs","2 lemons","4 cloves garlic","3 tbsp olive oil","1 tbsp dried oregano","500 g new potatoes","salt and black pepper"],
+   "method":"Toss everything in a tray. Roast at 200C for 40 minutes until the skin crackles."},
+
+  {"id":"r03","name":"Pad thai with tofu","cuisine":"Thai","minutes":25,"serves":2,"aisle":"pantry",
+   "ingredients":["200 g rice noodles","200 g firm tofu","2 eggs","3 tbsp fish sauce","2 tbsp tamarind paste","1 tbsp palm sugar","50 g crushed peanuts","2 spring onions","1 lime","bean sprouts"],
+   "method":"Soak noodles. Fry tofu, push aside, scramble the eggs. Add noodles and sauce, toss hard. Peanuts and lime on top."},
+
+  {"id":"r04","name":"Minestrone","cuisine":"Italian","minutes":40,"serves":6,"aisle":"produce",
+   "ingredients":["1 onion","2 carrots","2 celery sticks","1 courgette","400 g tinned tomatoes","1 can cannellini beans","100 g small pasta","1.5 l vegetable stock","2 tbsp olive oil","parmesan to serve","fresh basil"],
+   "method":"Sweat the vegetables, add tomatoes and stock, simmer 20 minutes. Pasta and beans in for the last 10."},
+
+  {"id":"r05","name":"Shakshuka","cuisine":"Middle Eastern","minutes":25,"serves":2,"aisle":"produce",
+   "ingredients":["4 eggs","400 g tinned tomatoes","1 red pepper","1 onion","2 cloves garlic","1 tsp cumin","1 tsp smoked paprika","2 tbsp olive oil","fresh parsley","crusty bread to serve"],
+   "method":"Cook down the peppers and tomatoes with the spices. Make four wells, crack in the eggs, lid on until just set."},
+
+  {"id":"r06","name":"Dal tadka with rice","cuisine":"Indian","minutes":35,"serves":4,"aisle":"pantry",
+   "ingredients":["200 g toor dal","1 tsp turmeric","2 tbsp ghee","1 tsp cumin seeds","3 cloves garlic","2 dried red chillies","1 tomato","300 g basmati rice","salt","fresh coriander"],
+   "method":"Boil the dal with turmeric until soft. Make the tadka in ghee and pour it over. Serve with rice."},
+
+  {"id":"r07","name":"Miso salmon with greens","cuisine":"Japanese","minutes":20,"serves":2,"aisle":"fish",
+   "ingredients":["2 salmon fillets","2 tbsp white miso","1 tbsp mirin","1 tbsp soy sauce","1 tsp sesame oil","200 g tenderstem broccoli","1 tsp sesame seeds","200 g rice"],
+   "method":"Glaze the salmon with the miso mix, grill 10 minutes. Steam the greens. Sesame on top."},
+
+  {"id":"r08","name":"Black bean tacos","cuisine":"Mexican","minutes":20,"serves":3,"aisle":"pantry",
+   "ingredients":["1 can black beans","8 corn tortillas","1 avocado","1 red onion","1 lime","1 tsp cumin","1 tsp chilli powder","fresh coriander","2 tbsp olive oil"],
+   "method":"Warm the beans with the spices and mash lightly. Char the tortillas. Build with avocado, onion and lime."},
+
+  {"id":"r09","name":"Mushroom risotto","cuisine":"Italian","minutes":40,"serves":4,"aisle":"produce",
+   "ingredients":["300 g arborio rice","400 g mixed mushrooms","1 onion","150 ml white wine","1.2 l vegetable stock","50 g butter","50 g parmesan","2 tbsp olive oil","fresh thyme"],
+   "method":"Toast the rice, deglaze with wine, add stock a ladle at a time for 20 minutes. Beat in butter and parmesan off the heat."},
+
+  {"id":"r10","name":"Greek salad with grilled halloumi","cuisine":"Greek","minutes":15,"serves":2,"aisle":"produce",
+   "ingredients":["250 g halloumi","4 tomatoes","1 cucumber","1 red onion","100 g kalamata olives","3 tbsp olive oil","1 tbsp red wine vinegar","1 tsp dried oregano"],
+   "method":"Grill the halloumi until it squeaks. Everything else raw, dressed, on a plate."},
+
+  {"id":"r11","name":"Sesame soba noodle salad","cuisine":"Japanese","minutes":20,"serves":2,"aisle":"pantry",
+   "ingredients":["200 g soba noodles","2 tbsp tahini","2 tbsp soy sauce","1 tbsp rice vinegar","1 tsp sesame oil","1 carrot, julienned","1 cucumber","2 spring onions","1 tbsp sesame seeds"],
+   "method":"Cook and cool the noodles. Whisk the dressing until it loosens. Toss everything together cold."},
+
+  {"id":"r12","name":"Roast cauliflower & lentil bowl","cuisine":"Modern","minutes":35,"serves":3,"aisle":"produce",
+   "ingredients":["1 cauliflower","200 g green lentils","3 tbsp olive oil","1 tsp cumin","1 tsp coriander seed","1 lemon","100 g rocket","2 tbsp pumpkin seeds","salt and pepper"],
+   "method":"Roast the cauliflower hard at 220C. Simmer lentils. Combine warm with lemon and rocket."},
+
+  {"id":"r13","name":"Prawn & garlic linguine","cuisine":"Italian","minutes":20,"serves":2,"aisle":"fish",
+   "ingredients":["200 g linguine","250 g raw prawns","4 cloves garlic","1 red chilli","100 ml white wine","3 tbsp olive oil","fresh parsley","1 lemon"],
+   "method":"Pasta on. Garlic and chilli in oil, prawns in for two minutes, wine to deglaze. Toss with the pasta and its water."},
+
+  {"id":"r14","name":"Sweet potato & peanut stew","cuisine":"West African","minutes":40,"serves":4,"aisle":"produce",
+   "ingredients":["2 sweet potatoes","4 tbsp peanut butter","1 onion","2 cloves garlic","1 tbsp ginger","400 g tinned tomatoes","500 ml vegetable stock","1 tsp chilli flakes","200 g kale"],
+   "method":"Build the base, add sweet potato and stock, simmer 25 minutes. Stir in peanut butter and kale."},
+
+  {"id":"r15","name":"Egg fried rice","cuisine":"Chinese","minutes":15,"serves":2,"aisle":"pantry",
+   "ingredients":["400 g cooked cold rice","3 eggs","2 tbsp soy sauce","1 tsp sesame oil","100 g frozen peas","2 spring onions","2 cloves garlic","1 tbsp vegetable oil"],
+   "method":"Very hot wok. Eggs first, out. Rice until it crackles. Everything back in, sauce last."},
+
+  {"id":"r16","name":"Tomato & white bean braise","cuisine":"Mediterranean","minutes":30,"serves":4,"aisle":"pantry",
+   "ingredients":["2 cans cannellini beans","400 g tinned tomatoes","1 onion","3 cloves garlic","1 tsp smoked paprika","3 tbsp olive oil","fresh rosemary","crusty bread"],
+   "method":"Soften the onion and garlic, add everything else, simmer 20 minutes until it thickens."},
+
+  {"id":"r17","name":"Chicken pho","cuisine":"Vietnamese","minutes":50,"serves":4,"aisle":"butcher",
+   "ingredients":["1 l chicken stock","300 g chicken breast","200 g rice noodles","2 tbsp fish sauce","1 cinnamon stick","3 star anise","1 onion, charred","2 cm ginger, charred","fresh mint","bean sprouts","1 lime"],
+   "method":"Infuse the stock with the aromatics for 30 minutes. Poach the chicken, slice it. Assemble in the bowl, broth over the top."},
+
+  {"id":"r18","name":"Aubergine parmigiana","cuisine":"Italian","minutes":60,"serves":4,"aisle":"produce",
+   "ingredients":["3 aubergines","500 g passata","250 g mozzarella","50 g parmesan","4 tbsp olive oil","3 cloves garlic","fresh basil"],
+   "method":"Griddle the aubergine slices. Layer with sauce and cheese. Bake 35 minutes at 190C."},
+
+  {"id":"r19","name":"Quinoa tabbouleh","cuisine":"Levantine","minutes":20,"serves":4,"aisle":"produce",
+   "ingredients":["150 g quinoa","2 bunches flat-leaf parsley","1 bunch mint","3 tomatoes","1 lemon","4 tbsp olive oil","2 spring onions","salt"],
+   "method":"Cook and cool the quinoa. Chop the herbs far more finely than feels reasonable. Dress heavily."},
+
+  {"id":"r20","name":"Congee with ginger & scallion","cuisine":"Chinese","minutes":55,"serves":4,"aisle":"pantry",
+   "ingredients":["200 g jasmine rice","1.8 l chicken stock","3 cm ginger, sliced","3 spring onions","1 tbsp soy sauce","1 tsp sesame oil","white pepper","soft-boiled eggs to serve"],
+   "method":"Simmer rice in stock with the ginger for 45 minutes, stirring now and then, until it collapses into porridge."},
+
+  {"id":"r21","name":"Lamb kofta with flatbread","cuisine":"Middle Eastern","minutes":30,"serves":4,"aisle":"butcher",
+   "ingredients":["500 g lamb mince","1 onion, grated","2 tsp cumin","1 tsp cinnamon","fresh parsley","4 flatbreads","200 g yogurt","1 cucumber","1 clove garlic"],
+   "method":"Mix, shape onto skewers, grill 8 minutes turning. Yogurt, cucumber and garlic make the sauce."},
+
+  {"id":"r22","name":"Rice-noodle veggie stir fry","cuisine":"Thai","minutes":18,"serves":2,"aisle":"produce",
+   "ingredients":["200 g rice noodles","1 red pepper","100 g mangetout","1 carrot","2 cloves garlic","1 tbsp ginger","2 tbsp tamari","1 tbsp lime juice","1 tbsp vegetable oil","fresh coriander"],
+   "method":"Hot pan, hard vegetables first, soft ones after. Noodles and sauce in for the last minute."}
+]
