@@ -144,9 +144,22 @@ my own idea and find out it was wrong.
 **This is a cooking aid, not a medical device.** It catches things you would have missed. It does
 not catch everything, and it cannot see a shared fryer. Read the label.
 
-## My Agent Session
+## How This Got Built
 
-<!-- TODO: save the session with DevRelay and embed it with the agent_session tag, or link it. -->
+No agent-session embed on this one, so here is the reproducible version instead. Every number in
+this post comes out of the repo:
+
+```bash
+git clone https://github.com/VanshajPoonia/safeplate
+cd safeplate && npm install
+npm test                                   # bge-small:  29/30 flagged, 1 false alarm
+MODEL=Xenova/all-MiniLM-L6-v2 npm test     # MiniLM:     27/30 flagged, 4 false alarms
+```
+
+`tests/fixtures.js` is the 54 labelled ingredients the thresholds were measured against, and
+`KNOWN_MISSES` holds the one the app still gets wrong. It is listed there rather than quietly added
+to the vocabulary, because a seed list that absorbs every failure stops being a test of
+generalisation.
 
 ## Prize Categories
 
