@@ -109,7 +109,3 @@ MODEL=Xenova/all-MiniLM-L6-v2 npm test   # MiniLM:    27/30 flagged, 4 false ala
 ```
 
 `tests/fixtures.js` holds the 54 labelled ingredients the thresholds were measured against, and `KNOWN_MISSES` holds the one the app still gets wrong. It is listed there rather than quietly added to the vocabulary, because a seed list that absorbs every failure stops being a test of generalisation.
-
-## Prize Categories
-
-<!-- List the partner categories you are entering, or delete this section. -->
