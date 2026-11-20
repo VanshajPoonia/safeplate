@@ -1,13 +1,11 @@
-import { FAMILIES, SEVERITY } from './allergens.js';
-import * as embedder from './embed.js';
-import { parseIngredientList, scanList } from './scan.js';
+import { FAMILIES, SEVERITY, createChecker } from '../lib/index.js';
 import { scoreBank, buildWeek, shoppingList, planToMarkdown } from './planner.js';
 
 const $ = (id) => document.getElementById(id);
 const PROFILE_KEY = 'safeplate:profile:v1';
 
 // Every line here is either a real allergen under an unusual name, or a safe ingredient
-// that reads like an allergen. None of these words appear in src/allergens.js.
+// that reads like an allergen. None of these words appear in lib/vocabulary.js.
 const DEMO = `200 g labneh
 a handful of kataifi pastry
 150 g surimi sticks
@@ -24,6 +22,7 @@ a knob of cocoa butter`;
 let profile = loadProfile();
 let bank = [];
 let lastScored = null;
+let checker = null;
 
 /* ---------------- profile ---------------- */
 
@@ -93,6 +92,18 @@ function renderChips() {
   }));
 }
 
+/** The profile as the library's allergen list. */
+function watchList() {
+  return [
+    ...profile.families.map((key) => ({ allergen: key, severity: profile.severity[key] })),
+    ...profile.custom.map((c) => ({ allergen: c.term, severity: c.severity })),
+  ];
+}
+
+function checkLines(lines) {
+  return checker.check(lines, watchList(), { dislikes: profile.dislikes });
+}
+
 function markDirty() {
   lastScored = null;
   $('profileStat').textContent = 'Unsaved changes.';
@@ -139,18 +150,20 @@ function setEngine(s, text) {
 }
 
 async function ensureModel() {
-  if (embedder.ready()) return true;
+  if (checker) return true;
   $('loadbar').hidden = false;
   setEngine('loading', 'Downloading weights…');
   try {
-    const { device } = await embedder.load(embedder.DEFAULT_MODEL, 'auto', (p) => {
-      if (p.status === 'progress' && p.total) {
-        const pct = Math.round((p.loaded / p.total) * 100);
-        $('loadbarFill').style.width = `${pct}%`;
-        $('loadbarText').textContent = `${p.file} — ${pct}%`;
-      }
+    checker = await createChecker({
+      onProgress: (p) => {
+        if (p.status === 'progress' && p.total) {
+          const pct = Math.round((p.loaded / p.total) * 100);
+          $('loadbarFill').style.width = `${pct}%`;
+          $('loadbarText').textContent = `${p.file}: ${pct}%`;
+        }
+      },
     });
-    setEngine('ready', `bge-small on ${device.toUpperCase()}`);
+    setEngine('ready', `bge-small on ${checker.device.toUpperCase()}`);
     $('loadbarText').textContent = 'Cached. Offline from here.';
     setTimeout(() => { $('loadbar').hidden = true; }, 1200);
     return true;
@@ -180,9 +193,8 @@ $('scanBtn').addEventListener('click', async () => {
   $('scanStat').textContent = 'Comparing meanings…';
   const t0 = performance.now();
   try {
-    const ingredients = parseIngredientList(text);
-    const { results, verdict } = await scanList(ingredients, profile);
-    renderScan(results, verdict);
+    const { ingredients, verdict } = await checkLines(text);
+    renderScan(ingredients, verdict);
     $('scanStat').textContent = `${ingredients.length} ingredients in ${Math.round(performance.now() - t0)} ms, locally.`;
   } catch (err) {
     $('scanStat').textContent = `Scan failed: ${err.message}`;
@@ -203,24 +215,22 @@ function renderScan(results, verdict) {
   $('scanVerdict').innerHTML = `<div class="verdict ${v.cls}"><strong>${v.title}</strong><span>${v.sub}</span></div>`;
 
   $('scanResults').innerHTML = results.map((r) => {
-    const real = r.hits.filter((h) => h.verdict !== 'excused');
-    const excused = r.hits.filter((h) => h.verdict === 'excused');
-    const cls = real.some((h) => h.verdict === 'danger') ? 'bad'
-      : real.some((h) => h.verdict === 'caution') ? 'warn'
-      : real.length ? 'note' : 'good';
+    const cls = r.flags.some((f) => f.level === 'danger') ? 'bad'
+      : r.flags.some((f) => f.level === 'caution') ? 'warn'
+      : r.flags.length ? 'note' : 'good';
     return `
       <div class="ingrow ${cls}">
-        <div class="ingname">${esc(r.raw)}${r.norm !== r.raw.toLowerCase() ? `<span class="norm">read as “${esc(r.norm)}”</span>` : ''}</div>
+        <div class="ingname">${esc(r.text)}${r.readAs !== r.text.toLowerCase() ? `<span class="norm">read as “${esc(r.readAs)}”</span>` : ''}</div>
         <div class="inghits">
-          ${real.map((h) => `
-            <div class="hit ${h.verdict}">
-              <span class="hicon">${h.icon}</span>
-              <span class="hlabel">${esc(h.label)}</span>
-              <span class="hreason">${esc(h.reason)}</span>
-              <span class="hscore" title="cosine similarity">${h.score.toFixed(2)}</span>
+          ${r.flags.map((f) => `
+            <div class="hit ${f.level}">
+              <span class="hicon">${iconFor(f)}</span>
+              <span class="hlabel">${esc(f.label)}</span>
+              <span class="hreason">${esc(f.reason)}</span>
+              <span class="hscore" title="cosine similarity">${f.similarity.toFixed(2)}</span>
             </div>`).join('')}
-          ${excused.map((h) => `<div class="hit excused"><span class="hicon">✓</span><span class="hreason">${esc(h.reason)}</span></div>`).join('')}
-          ${!real.length && !excused.length ? '<div class="hit clear">Clear</div>' : ''}
+          ${r.excused.map((e) => `<div class="hit excused"><span class="hicon">✓</span><span class="hreason">${esc(e.reason)}</span></div>`).join('')}
+          ${!r.flags.length && !r.excused.length ? '<div class="hit clear">Clear</div>' : ''}
         </div>
       </div>`;
   }).join('');
@@ -248,7 +258,7 @@ $('planBtn').addEventListener('click', async () => {
     await loadBank();
     $('planProgress').hidden = false;
     $('planStat').textContent = 'Scanning every recipe…';
-    lastScored = await scoreBank(bank, profile, (done, total) => {
+    lastScored = await scoreBank(bank, checkLines, (done, total) => {
       $('planBar').style.width = `${Math.round((done / total) * 100)}%`;
     });
     $('planProgress').hidden = true;
@@ -290,7 +300,7 @@ function renderPlan() {
       <div class="dayname">${d.day}</div>
       <div class="dish">${esc(d.recipe.name)}</div>
       <div class="dmeta">${esc(d.recipe.cuisine)} · ${d.recipe.minutes} min · serves ${d.recipe.serves}</div>
-      ${d.problems.length ? `<div class="dwarn">${d.problems.map((p) => p.hits.filter((h) => h.verdict !== 'excused').map((h) => `${h.icon} ${esc(p.raw)} — ${esc(h.reason)}`).join('<br/>')).join('<br/>')}</div>` : ''}
+      ${d.problems.length ? `<div class="dwarn">${d.problems.map((p) => p.flags.map((f) => `${iconFor(f)} <strong>${esc(p.text)}</strong> ${esc(f.reason)}`).join('<br/>')).join('<br/>')}</div>` : ''}
     </div>`).join('');
 
   $('shopMount').innerHTML = `<h3>Shopping list</h3><div class="shop">${shoppingList(days).map((g) => `
@@ -301,6 +311,11 @@ function renderPlan() {
 }
 
 /* ---------------- utils ---------------- */
+
+function iconFor(flag) {
+  if (flag.level === 'dislike') return '😖';
+  return FAMILIES[flag.allergen]?.icon || '⚠️';
+}
 
 function esc(s) {
   return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));

@@ -71,7 +71,7 @@ should be able to see how confident the machine is.
 A language model is confident that **coconut milk** is dairy. It is wrong, and that direction of
 wrong is nearly as bad as a miss, because a planner that flags everything gets ignored by Wednesday.
 
-So [`src/allergens.js`](src/allergens.js) carries an explicit `FALSE_FRIENDS` table — coconut milk,
+So [`lib/vocabulary.js`](lib/vocabulary.js) carries an explicit `FALSE_FRIENDS` table — coconut milk,
 almond flour, buckwheat, nutmeg, eggplant, cocoa butter, cream of tartar, nutritional yeast — each
 naming the family it must *not* trigger and the reason, which is shown to the user:
 
@@ -145,7 +145,7 @@ MODEL=Xenova/all-MiniLM-L6-v2 npm test       # MiniLM: 27/30 flagged, 4 false al
 
 ## Thresholds
 
-All in one object at the top of [`src/scan.js`](src/scan.js).
+All in one object at the top of [`lib/match.js`](lib/match.js).
 
 | Condition | Verdict | Meaning |
 |---|---|---|
@@ -177,14 +177,17 @@ a second pair of eyes.
 ```
 index.html            three tabs, one page
 assets/styles.css     light + dark, no framework
-src/allergens.js      16 families, false friends, hidden sources, control foods
-src/embed.js          model pipeline, embedding cache, cosine
-src/scan.js           normalisation, margin scoring, thresholds — the interesting file
+lib/index.js          the library: createChecker() and check()
+lib/vocabulary.js     16 families, false friends, hidden sources, control foods
+lib/model.js          loads bge-small in Node or the browser
+lib/match.js          normalisation, margin scoring, thresholds. The interesting file
 src/planner.js        week building and shopping list
-src/app.js            UI wiring
+src/app.js            UI wiring, calls the library
 data/recipes.json     22-recipe bank
 tests/fixtures.js     54 labelled ingredients
+tests/eval.mjs        scores a checker on the fixtures
 tests/run.mjs         reproduces every number in this README
+tests/unit.mjs        parsing and result shape, no model needed
 ```
 
 ## License

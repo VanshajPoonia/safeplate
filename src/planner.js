@@ -1,17 +1,15 @@
-import { parseIngredientList, scanList } from './scan.js';
-
 /**
- * Score every recipe in the bank against the profile, then build a week that is
- * safe first and varied second. A meal plan that is safe and boring gets ignored,
- * and an ignored plan is not safer than no plan.
+ * Score every recipe in the bank with `checkLines(ingredients)`, which is the library's
+ * check bound to the profile. Then build a week that is safe first and varied second.
+ * A meal plan that is safe and boring gets ignored, and an ignored plan is not safer
+ * than no plan.
  */
-export async function scoreBank(recipes, profile, onProgress) {
+export async function scoreBank(recipes, checkLines, onProgress) {
   const scored = [];
   for (let i = 0; i < recipes.length; i++) {
     const recipe = recipes[i];
-    const parsed = parseIngredientList(recipe.ingredients.join('\n'));
-    const { results, verdict } = await scanList(parsed, profile);
-    const problems = results.filter((r) => r.hits.some((h) => h.verdict !== 'excused'));
+    const { ingredients, verdict } = await checkLines(recipe.ingredients);
+    const problems = ingredients.filter((r) => r.flags.length);
     scored.push({
       recipe,
       verdict,
@@ -89,9 +87,7 @@ export function planToMarkdown(days, profileName) {
     if (d.problems.length) {
       out.push('> Check before cooking:');
       d.problems.forEach((p) => {
-        p.hits.filter((h) => h.verdict !== 'excused').forEach((h) => {
-          out.push(`> - ${p.raw} — ${h.label}: ${h.reason}`);
-        });
+        p.flags.forEach((f) => out.push(`> - **${p.text}** (${f.label}) ${f.reason}`));
       });
       out.push('');
     }
