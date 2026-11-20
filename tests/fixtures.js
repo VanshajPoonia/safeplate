@@ -65,3 +65,17 @@ export const FIXTURES = [
 // Known misses, kept here deliberately rather than quietly added to the vocabulary.
 // A seed list that absorbs every failure stops being a test of generalisation.
 export const KNOWN_MISSES = ['gianduja'];
+
+// Everyday ingredients that contain none of the nine major allergens below. tests/noise.mjs
+// checks each one against all nine at once, the way a menu tool would, and counts flags.
+// Picked by hand before measuring, and kept out of CONTROL_FOODS on purpose.
+export const EVERYDAY = [
+  'courgette', 'broccoli', 'cauliflower', 'green peas', 'lettuce', 'kale', 'pear', 'mango',
+  'strawberries', 'blueberries', 'chicken breast', 'lamb shoulder', 'turkey mince', 'brown rice',
+  'millet', 'polenta', 'corn tortilla', 'red lentils', 'black beans', 'kidney beans',
+  'sweet potato', 'butternut squash', 'red onion', 'ginger', 'turmeric', 'coriander', 'mint',
+  'thyme', 'rosemary', 'oregano', 'maple syrup', 'brown sugar', 'apple cider vinegar',
+  'sunflower oil', 'rapeseed oil', 'coconut oil', 'vegetable stock', 'tomato passata',
+  'garam masala', 'smoked paprika',
+];
+export const MAJOR_NINE = ['dairy', 'gluten', 'peanut', 'treenut', 'sesame', 'egg', 'soy', 'shellfish', 'fish'];
