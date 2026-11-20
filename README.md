@@ -18,8 +18,8 @@ Measured on the 54-ingredient fixture set in [`tests/fixtures.js`](tests/fixture
 > **A warning aid, not a guarantee.** SafePlate flags ingredients that may contain an allergen
 > and says why. It is not medical advice. It can miss an allergen, and it cannot see
 > cross-contact, shared fryers or a recipe change. A clear result does not mean a dish is safe.
-> Check the label and ask the kitchen. The library returns this notice with every result, in a
-> `disclaimer` field.
+> Check the label and ask the kitchen. The library and the API return this notice with every
+> result, in a `disclaimer` field.
 
 ---
 
@@ -135,6 +135,29 @@ flowchart TB
 
 Nothing there is a network call, apart from the one-time 35 MB model download the browser caches.
 
+## Use it in your own software
+
+The matcher is a small ES module in [`lib/`](lib/) that runs in the browser and in Node. Menu,
+recipe and grocery tools can call it directly, or call the same code over HTTP.
+
+```js
+import { check } from './lib/index.js';
+const result = await check(['1 tbsp light soy sauce', '2 tsp nutmeg'], ['gluten', 'tree nuts']);
+// light soy sauce: danger for gluten.
+//   "Close in meaning to soy sauce. Soy sauce is usually brewed with wheat."
+// nutmeg: excused for tree nuts. "A seed spice, not a tree nut."
+```
+
+```bash
+curl -X POST https://safeplate-theta.vercel.app/api/check -H 'content-type: application/json' \
+  -d '{"ingredients": ["1 tbsp light soy sauce"], "allergens": ["gluten"]}'
+```
+
+[`docs/API.md`](docs/API.md) has the request and response format, the levels, errors and limits.
+The API runs as a Vercel function. On a preview deploy the bundle was 38.77 MB, a cold start
+took 1.4 s to load the model, and a warm check of a 10-line dish took 6 to 14 ms.
+`npm run api` serves the same endpoint on plain Node at port 8787.
+
 ## Run it
 
 ```bash
@@ -158,6 +181,7 @@ npm install                                  # dev-only, for the test runner
 npm test                                     # bge-small: 29/30 flagged, 1 false alarm
 MODEL=Xenova/all-MiniLM-L6-v2 npm test       # MiniLM: 26/30 flagged, 3 false alarms
 DTYPE=fp32 node tests/run.mjs                # fp32 weights: 29/30 flagged, 3 false alarms
+node tests/noise.mjs                         # 40 everyday foods vs 9 allergens at once
 ```
 
 `npm test` runs the eval twice. `tests/run.mjs` uses the native CPU backend in Node.
@@ -189,6 +213,10 @@ a second pair of eyes.
   recorded in `KNOWN_MISSES` rather than quietly added to the vocabulary, because a seed list that
   absorbs every failure stops being a test of generalisation.
 - **Known false alarm:** `fresh parsley` draws a soft "worth checking" against gluten.
+- **Noisy with many allergens at once.** The fixtures check one family per ingredient. Checked
+  against the nine major allergens at once, 28 of 40 everyday ingredients get at least one flag,
+  and 7 get a danger flag, such as courgette as gluten and thyme as soy. Most are soft "worth
+  checking" flags. `node tests/noise.mjs` measures it, and fails if it gets worse.
 - The recipe bank is 22 dishes — a demonstration, not a cookbook. `data/recipes.json` is plain JSON.
 - bge-small is an English model. Ingredient names in other scripts will not embed meaningfully.
 - Severity affects ranking and wording, not the thresholds.
@@ -199,16 +227,24 @@ a second pair of eyes.
 index.html            three tabs, one page
 assets/styles.css     light + dark, no framework
 lib/index.js          the library: createChecker() and check()
-lib/vocabulary.js     16 families, false friends, hidden sources, control foods
+lib/vocabulary.js     16 families, false friends, hidden sources, control foods, plain facts
 lib/model.js          loads bge-small in Node or the browser
-lib/match.js          normalisation, margin scoring, thresholds. The interesting file
+lib/match.js          normalisation, margin scoring, thresholds, reasons. The interesting file
+lib/vectors.js        the seed vocabulary embedded ahead of time (npm run vectors)
+api/check.js          the HTTP API, run by Vercel or by scripts/api-server.mjs
+docs/API.md           API and library docs for menu software
 src/planner.js        week building and shopping list
 src/app.js            UI wiring, calls the library
 data/recipes.json     22-recipe bank
-tests/fixtures.js     54 labelled ingredients
+tests/fixtures.js     54 labelled ingredients, plus 40 everyday ones for the noise check
 tests/eval.mjs        scores a checker on the fixtures
-tests/run.mjs         reproduces every number in this README
+tests/run.mjs         the eval on Node's CPU backend
+tests/wasm.mjs        the eval on the WASM backend the browser uses
+tests/noise.mjs       flags on everyday foods when 9 allergens are watched at once
 tests/unit.mjs        parsing and result shape, no model needed
+tests/reasons.mjs     every seed term has a fact, and real flags carry it
+tests/api.mjs         the API handlers and a local HTTP round trip
+tests/vectors.mjs     lib/vectors.js matches the vocabulary and the model
 ```
 
 ## License
