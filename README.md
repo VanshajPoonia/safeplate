@@ -15,6 +15,12 @@ flagged. None of those words appear anywhere in this repository's vocabulary.
 Measured on the 54-ingredient fixture set in [`tests/fixtures.js`](tests/fixtures.js):
 **29 of 30 real allergens flagged, 1 false alarm out of 24 safe ingredients.** Run `npm test`.
 
+> **A warning aid, not a guarantee.** SafePlate flags ingredients that may contain an allergen
+> and says why. It is not medical advice. It can miss an allergen, and it cannot see
+> cross-contact, shared fryers or a recipe change. A clear result does not mean a dish is safe.
+> Check the label and ask the kitchen. The library returns this notice with every result, in a
+> `disclaimer` field.
+
 ---
 
 ## The thing I got wrong first, and why open weights saved it

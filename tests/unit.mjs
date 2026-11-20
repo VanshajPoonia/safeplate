@@ -1,6 +1,6 @@
 // Library behaviour that does not need the model: parsing, allergen names, result shape.
 import assert from 'node:assert/strict';
-import { createChecker, parseIngredients, resolveAllergens, familyKey, ALLERGENS } from '../lib/index.js';
+import { createChecker, parseIngredients, resolveAllergens, familyKey, ALLERGENS, DISCLAIMER } from '../lib/index.js';
 
 let failed = 0;
 async function test(name, fn) {
@@ -77,6 +77,15 @@ await test('returns a verdict, the flagged allergens and one row per ingredient'
   assert.equal(casein.flags[0].matched, 'casein');
   assert.ok(casein.flags[0].reason.length > 0);
   assert.deepEqual(carrot.flags, []);
+});
+
+await test('every result carries the warning-aid disclaimer', async () => {
+  const flagged = await checker.check('casein', ['dairy']);
+  const clear = await checker.check('carrot', ['dairy']);
+  assert.equal(flagged.disclaimer, DISCLAIMER);
+  assert.equal(clear.disclaimer, DISCLAIMER);
+  assert.match(DISCLAIMER, /warning aid/);
+  assert.match(DISCLAIMER, /not a guarantee and not medical advice/);
 });
 
 await test('excuses a false friend with its reason', async () => {
