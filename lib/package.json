@@ -1,0 +1,39 @@
+{
+  "name": "safeplate",
+  "version": "0.1.0",
+  "description": "Flags allergens in ingredient lists by meaning, not spelling, with a plain reason for every flag. A warning aid, not a guarantee.",
+  "type": "module",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "match.js",
+    "model.js",
+    "vocabulary.js",
+    "vectors.js",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "@huggingface/transformers": "^3.7.5"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "allergen",
+    "allergy",
+    "ingredients",
+    "menu",
+    "recipe",
+    "food",
+    "embeddings"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VanshajPoonia/safeplate.git",
+    "directory": "lib"
+  },
+  "homepage": "https://github.com/VanshajPoonia/safeplate/blob/main/docs/API.md",
+  "license": "MIT"
+}
