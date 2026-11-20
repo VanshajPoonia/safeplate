@@ -96,8 +96,8 @@ Guard rails beat threshold tuning. An ingredient can be excused from `dairy` whi
 - **Profile** — 16 allergen families with per-person severity, plus free-text custom allergens and a
   separate list for things they merely dislike. Stored in this browser only.
 - **Scan** — paste any ingredient list. Each line is normalised ("2 tbsp of finely chopped flat-leaf
-  parsley" → "flat-leaf parsley"), embedded, and scored. Every hit shows what it matched, why, and
-  the similarity.
+  parsley" → "flat-leaf parsley"), embedded, and scored. Every hit shows what it matched, a plain
+  fact about why ("Casein is a milk protein."), and the similarity.
 - **Hidden sources** — allergens behind a process word: soy sauce contains wheat, worcestershire
   contains anchovy, burger buns contain sesame.
 - **Plan a week** — scores a 22-recipe bank against the profile, then builds seven dinners from the
