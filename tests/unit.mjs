@@ -91,6 +91,11 @@ await test('softens the level for avoid-only severities', async () => {
   assert.equal(r.verdict, 'avoid');
 });
 
+await test('lists flagged allergens most serious first', async () => {
+  const r = await checker.check('bacon\ncasein', [{ allergen: 'pork', severity: 'avoid' }, 'dairy']);
+  assert.deepEqual(r.allergens, ['dairy', 'pork']);
+});
+
 await test('needs at least one allergen', async () => {
   await assert.rejects(checker.check('milk', []), /at least one allergen/);
 });
