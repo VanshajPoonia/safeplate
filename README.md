@@ -58,6 +58,11 @@ Only then was it worth comparing models, and the comparison was not about recall
 A tool someone trusts with an allergy can survive being cautious. It cannot survive being
 confidently wrong. 13 MB is a cheap price for that column.
 
+The same reasoning picks the weights. The browser runs the q8 weights on WASM, which is what
+the eval measures. The app used to switch to the fp32 weights on WebGPU. On the same fixtures
+fp32 flags 29/30 but raises 3 false alarms, and one is danger-level (`buckwheat flour` read as
+gluten). It is also a 133 MB download instead of 35 MB. So WebGPU is off by default now.
+
 **This is the part a closed API would have cost me.** Finding the margin trick took a few hundred
 runs over the fixture set, then a few hundred more per candidate model, in a loop with no network
 and no bill. A hosted classifier would have given me a label and hidden the score, so I would never
@@ -101,7 +106,7 @@ flowchart TB
   P[Profile in localStorage<br/>families · severity · custom · dislikes] --> W[Vocabulary]
   C[CONTROL_FOODS<br/>30 ordinary ingredients] --> W
   I[Ingredient list] --> N[Normalise<br/>strip quantities, units, prep words]
-  W --> E[bge-small-en-v1.5<br/>transformers.js · WebGPU/WASM]
+  W --> E[bge-small-en-v1.5 q8<br/>transformers.js · WASM or Node CPU]
   N --> E
   E --> M[margin = sim allergen − sim ordinary food]
   M --> G{False-friend guard}
@@ -141,7 +146,12 @@ the profile tab, save, go to *Check a recipe*, hit **Load the hard examples**, a
 npm install                                  # dev-only, for the test runner
 npm test                                     # bge-small: 29/30 flagged, 1 false alarm
 MODEL=Xenova/all-MiniLM-L6-v2 npm test       # MiniLM: 27/30 flagged, 4 false alarms
+DTYPE=fp32 node tests/run.mjs                # fp32 weights: 29/30 flagged, 3 false alarms
 ```
+
+`npm test` runs the eval twice. `tests/run.mjs` uses the native CPU backend in Node.
+`tests/wasm.mjs` uses onnxruntime-web's WASM backend, the one the browser runs. Both give
+29/30 and 1 false alarm.
 
 ## Thresholds
 
