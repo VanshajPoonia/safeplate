@@ -24,7 +24,9 @@ async function embedOne(text) {
   return v.map((x) => x / norm);
 }
 
+// Seed vectors come from lib/vectors.js, as they do in the browser.
 const checker = await createChecker({
+  precomputed: true,
   embed: async (texts) => {
     const out = [];
     for (const t of texts) out.push(await embedOne(t));
