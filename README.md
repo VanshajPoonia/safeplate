@@ -145,7 +145,7 @@ import { check } from './lib/index.js';
 const result = await check(['1 tbsp light soy sauce', '2 tsp nutmeg'], ['gluten', 'tree nuts']);
 // light soy sauce: danger for gluten.
 //   "Close in meaning to soy sauce. Soy sauce is usually brewed with wheat."
-// nutmeg: excused for tree nuts. "A seed spice, not a tree nut."
+// nutmeg: excused for tree nuts ("A seed spice, not a tree nut."), soft caution for gluten.
 ```
 
 ```bash
