@@ -12,7 +12,7 @@ const HEADERS = {
   'access-control-allow-headers': 'content-type',
 };
 
-const json = (status, body) => new Response(JSON.stringify(body), { status, headers: HEADERS });
+const json = (status, body, extra = {}) => new Response(JSON.stringify(body), { status, headers: { ...HEADERS, ...extra } });
 const fail = (status, error) => json(status, { error, docs: DOCS, disclaimer: DISCLAIMER });
 
 // One model per warm instance. Vercel's file system is read-only apart from /tmp.
@@ -73,8 +73,13 @@ export async function POST(request) {
   const problem = validate(body);
   if (problem) return fail(400, problem);
   try {
-    const result = await (await getChecker()).check(body.ingredients, body.allergens);
-    return json(200, result);
+    // server-timing shows how much of a slow answer was loading the model on a cold start.
+    const t0 = performance.now();
+    const ready = await getChecker();
+    const t1 = performance.now();
+    const result = await ready.check(body.ingredients, body.allergens);
+    const timing = `model;dur=${Math.round(t1 - t0)}, check;dur=${Math.round(performance.now() - t1)}`;
+    return json(200, result, { 'server-timing': timing });
   } catch (err) {
     console.error('check failed', err);
     return fail(500, 'The check failed on our side. Try again.');

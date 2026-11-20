@@ -2,7 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "buildCommand": null,
-  "installCommand": "npm install --ignore-scripts --no-audit --no-fund",
   "outputDirectory": ".",
   "functions": {
     "api/check.js": {
