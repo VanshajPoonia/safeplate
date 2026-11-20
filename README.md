@@ -51,9 +51,14 @@ Only then was it worth comparing models, and the comparison was not about recall
 | | all-MiniLM-L6-v2 | **bge-small-en-v1.5** |
 |---|---|---|
 | Size (q8) | 22 MB | 35 MB |
-| Allergens flagged | 27/30 | **29/30** |
-| False alarms | 4 | **1** |
+| Allergens flagged | 26/30 | **29/30** |
+| False alarms | 3 | **1** |
 | Danger-level false alarms | 1 (`buckwheat flour` → gluten) | **0** |
+
+MiniLM first measured 27/30 with 4 false alarms. Those numbers came from embedding the whole
+vocabulary in one batch. Quantised models shift each vector a little by what else is in the
+batch, so the library now embeds one text at a time and MiniLM lands at 26/30 with 3. bge-small
+gives 29/30 and 1 false alarm either way.
 
 A tool someone trusts with an allergy can survive being cautious. It cannot survive being
 confidently wrong. 13 MB is a cheap price for that column.
@@ -145,7 +150,7 @@ the profile tab, save, go to *Check a recipe*, hit **Load the hard examples**, a
 ```bash
 npm install                                  # dev-only, for the test runner
 npm test                                     # bge-small: 29/30 flagged, 1 false alarm
-MODEL=Xenova/all-MiniLM-L6-v2 npm test       # MiniLM: 27/30 flagged, 4 false alarms
+MODEL=Xenova/all-MiniLM-L6-v2 npm test       # MiniLM: 26/30 flagged, 3 false alarms
 DTYPE=fp32 node tests/run.mjs                # fp32 weights: 29/30 flagged, 3 false alarms
 ```
 
