@@ -27,7 +27,7 @@ const NOISE = new Set(['of', 'the', 'a', 'an', 'and', 'or', 'to', 'for', 'with',
   'fresh', 'freshly', 'finely', 'roughly', 'chopped', 'sliced', 'diced', 'minced', 'grated',
   'optional', 'taste', 'needed', 'large', 'small', 'medium', 'ripe', 'warm', 'cold', 'hot']);
 
-const QTY_RE = /^\s*(?:\d+[\d./\s-]*)?\s*(?:cups?|tablespoons?|tbsp|teaspoons?|tsp|g|grams?|kg|ml|l|litres?|liters?|oz|ounces?|lbs?|pounds?|pinch(?:es)?|handfuls?|cloves?|slices?|pieces?|cans?|tins?|packets?|bunch(?:es)?|sticks?|sprigs?|dash(?:es)?)?\s*(?:of\s+)?/i;
+const QTY_RE = /^\s*(?:\d+[\d./\s-]*)?\s*(?:(?:cups?|tablespoons?|tbsp|teaspoons?|tsp|g|grams?|kg|ml|l|litres?|liters?|oz|ounces?|lbs?|pounds?|pinch(?:es)?|handfuls?|cloves?|slices?|pieces?|cans?|tins?|packets?|bunch(?:es)?|sticks?|sprigs?|dash(?:es)?)(?=\s))?\s*(?:of\s+)?/i;
 
 /** "2 tbsp of finely chopped flat-leaf parsley, to taste" -> "flat-leaf parsley" */
 export function normalizeIngredient(line) {
@@ -45,7 +45,7 @@ export function normalizeIngredient(line) {
 export function parseIngredientList(text) {
   return text
     .split(/\n|;|(?:,(?=\s*\d))/)
-    .map((l) => l.replace(/^[-*•\d.)\s]+/, '').trim())
+    .map((l) => l.replace(/^\s*(?:[-*•]+|\d+[.)](?!\d))\s*/, '').trim())
     .filter(Boolean)
     .map((raw) => ({ raw, norm: normalizeIngredient(raw) }))
     .filter((i) => i.norm.length > 1);
