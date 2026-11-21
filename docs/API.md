@@ -165,9 +165,10 @@ CORS is open, so a browser can call it directly.
 Measured on a Vercel preview in Washington (iad1, 2 GB and 1 vCPU), with a 10-line dish
 against 4 allergens:
 
-- Cold start: 0.5 to 0.8 s to load the model, then about 105 ms for the first check. The
-  model ships inside the function, so a cold start never calls the Hugging Face Hub.
-- Warm: 4 to 14 ms for the check.
+- Cold start: 0.5 to 1.7 s to load the model over four measured cold starts, then 92 to
+  127 ms for the first check. The model ships inside the function, so a cold start never
+  calls the Hugging Face Hub.
+- Warm: 2 to 14 ms for the check.
 
 Every 200 response has a `server-timing` header with both parts, like
 `model;dur=0, check;dur=6`. The network time to you comes on top.

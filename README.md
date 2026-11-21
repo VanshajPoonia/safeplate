@@ -155,8 +155,8 @@ curl -X POST https://safeplate-theta.vercel.app/api/check -H 'content-type: appl
 
 [`docs/API.md`](docs/API.md) has the request and response format, the levels, errors and limits.
 The API runs as a Vercel function with the model inside it, so it never calls the Hugging Face
-Hub. On two preview deploys the bundle was 65.71 MB, a cold start took 0.5 to 0.8 s to load the
-model, and a warm check of a 10-line dish took 4 to 14 ms.
+Hub. The bundle is 65.71 MB. Over four cold starts on Vercel, loading the model took 0.5 to 1.7 s,
+about the same as when it came from the Hub. A warm check of a 10-line dish took 2 to 14 ms.
 `npm run api` serves the same endpoint on plain Node at port 8787.
 
 ## Run it
