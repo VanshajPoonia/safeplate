@@ -105,6 +105,13 @@ await test('lists flagged allergens most serious first', async () => {
   assert.deepEqual(r.allergens, ['dairy', 'pork']);
 });
 
+await test('thresholds can be overridden for tuning', async () => {
+  // With exact matching an unrelated line scores margin 0, which the default caution margin flags.
+  const strict = await createChecker({ embed: exactEmbed(), thresholds: { CAUTION_MARGIN: 0.01 } });
+  assert.equal((await checker.check('olives', ['dairy'])).ingredients[0].flags[0].level, 'caution');
+  assert.deepEqual((await strict.check('olives', ['dairy'])).ingredients[0].flags, []);
+});
+
 await test('needs at least one allergen', async () => {
   await assert.rejects(checker.check('milk', []), /at least one allergen/);
 });
