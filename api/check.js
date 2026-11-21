@@ -1,5 +1,6 @@
 // POST /api/check. JSON in, JSON out. Runs the same library as the app, on the server.
 import { createChecker, parseIngredients, resolveAllergens, ALLERGENS, SEVERITY, DISCLAIMER } from '../lib/index.js';
+import { MODEL_DIR } from './_model.js';
 
 export const LIMITS = { bodyBytes: 32000, ingredients: 200, lineChars: 200, allergens: 30 };
 const DOCS = 'https://github.com/VanshajPoonia/safeplate/blob/main/docs/API.md';
@@ -15,10 +16,10 @@ const HEADERS = {
 const json = (status, body, extra = {}) => new Response(JSON.stringify(body), { status, headers: { ...HEADERS, ...extra } });
 const fail = (status, error) => json(status, { error, docs: DOCS, disclaimer: DISCLAIMER });
 
-// One model per warm instance. Vercel's file system is read-only apart from /tmp.
+// One model per warm instance, read from the files shipped with the function.
 let checker = null;
 function getChecker() {
-  checker ??= createChecker({ cacheDir: process.env.VERCEL ? '/tmp/safeplate-models' : undefined })
+  checker ??= createChecker({ modelPath: MODEL_DIR })
     .catch((err) => {
       checker = null;
       throw err;

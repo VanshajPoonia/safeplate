@@ -4,6 +4,15 @@ import { GET, POST, OPTIONS, LIMITS } from '../api/check.js';
 import { apiServer } from '../scripts/api-server.mjs';
 import { DISCLAIMER } from '../lib/index.js';
 
+// The API must load its model from the bundled files, never from the Hugging Face Hub.
+const hubCalls = [];
+const realFetch = globalThis.fetch;
+globalThis.fetch = (input, init) => {
+  const url = String(input?.url ?? input);
+  if (url.includes('huggingface.co')) hubCalls.push(url);
+  return realFetch(input, init);
+};
+
 let failed = 0;
 async function test(name, fn) {
   try {
@@ -107,6 +116,10 @@ await test('a real HTTP round trip through the local server', async () => {
   } finally {
     server.close();
   }
+});
+
+await test('the model came from disk, not the Hugging Face Hub', () => {
+  assert.deepEqual(hubCalls, []);
 });
 
 if (failed) {

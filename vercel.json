@@ -1,12 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "buildCommand": null,
+  "buildCommand": "node scripts/fetch-model.mjs",
   "outputDirectory": ".",
   "functions": {
     "api/check.js": {
       "maxDuration": 60,
-      "includeFiles": "node_modules/@huggingface/transformers/node_modules/onnxruntime-node/bin/napi-v3/linux/x64/{libonnxruntime.so.1,libonnxruntime_providers_shared.so,onnxruntime_binding.node}"
+      "includeFiles": "node_modules/{.cache/safeplate-model/**,@huggingface/transformers/node_modules/onnxruntime-node/bin/napi-v3/linux/x64/{libonnxruntime.so.1,libonnxruntime_providers_shared.so,onnxruntime_binding.node}}"
     }
   }
 }
