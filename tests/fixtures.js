@@ -79,3 +79,13 @@ export const EVERYDAY = [
   'garam masala', 'smoked paprika',
 ];
 export const MAJOR_NINE = ['dairy', 'gluten', 'peanut', 'treenut', 'sesame', 'egg', 'soy', 'shellfish', 'fish'];
+
+// The 22-recipe bank labelled for the demo profile in the README: dairy, gluten, sesame,
+// shellfish and tree nuts. CONTAINS lists the recipes with at least one of the five.
+// r14 (vegetable stock) and r22 (tamari) may contain gluten, so they count either way.
+export const DEMO_PROFILE = ['dairy', 'gluten', 'sesame', 'shellfish', 'treenut'];
+export const RECIPE_TRUTH = {
+  contains: ['r04', 'r05', 'r06', 'r07', 'r09', 'r10', 'r11', 'r13', 'r15', 'r16', 'r18', 'r20', 'r21'],
+  free: ['r01', 'r02', 'r03', 'r08', 'r12', 'r17', 'r19'],
+  maybe: ['r14', 'r22'],
+};

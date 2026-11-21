@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "python3 -m http.server 8000",
-    "test": "node scripts/fetch-model.mjs && node tests/unit.mjs && node tests/reasons.mjs && node tests/api.mjs && node tests/vectors.mjs && node tests/run.mjs && node tests/wasm.mjs && node tests/noise.mjs",
+    "test": "node scripts/fetch-model.mjs && node tests/unit.mjs && node tests/reasons.mjs && node tests/api.mjs && node tests/vectors.mjs && node tests/run.mjs && node tests/wasm.mjs && node tests/noise.mjs && node tests/multi.mjs && node tests/plan.mjs",
     "vectors": "node scripts/vectors.mjs",
     "api": "node scripts/api-server.mjs",
     "model": "node scripts/fetch-model.mjs"
