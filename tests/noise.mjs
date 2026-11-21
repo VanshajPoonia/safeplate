@@ -3,8 +3,9 @@
 import { createChecker } from '../lib/index.js';
 import { EVERYDAY, MAJOR_NINE } from './fixtures.js';
 
-// Measured 2026-11-20. Lower these when the matcher improves, never raise them.
-const CEILING = { anyFlag: 28, danger: 7 };
+// Measured 2026-11-21 (danger was 7 before the danger margin went to 0.09). Lower these when
+// the matcher improves, never raise them.
+const CEILING = { anyFlag: 28, danger: 1 };
 
 const checker = await createChecker();
 let anyFlag = 0, cautionFlags = 0;

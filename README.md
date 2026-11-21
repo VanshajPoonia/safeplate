@@ -197,11 +197,17 @@ All in one object at the top of [`lib/match.js`](lib/match.js).
 |---|---|---|
 | similarity ≥ 0.86 to a false friend | ✓ excused | Explicitly not that allergen, reason shown |
 | similarity ≥ 0.90 | **Danger** | Effectively the same ingredient |
-| margin ≥ 0.02 and similarity ≥ 0.65 | **Danger** | Much closer to the allergen than to ordinary food |
+| margin ≥ 0.09 and similarity ≥ 0.60 | **Danger** | Much closer to the allergen than to ordinary food |
 | margin ≥ −0.05 | **Worth checking** | Resembles it, or is a common hidden source |
 | below | Clear | No meaningful resemblance |
 
 Change them, run `npm test`, see what breaks. That loop is the advantage of owning the model.
+
+The danger margin was 0.02 with a 0.65 floor until 2026-11-21. `node scripts/tune.mjs` tried 504
+settings on the tune half of a labelled set of 273 ingredients, each marked for all 16 families
+([`tests/multi-fixtures.js`](tests/multi-fixtures.js)). It kept the settings that hold 29/30 on
+the fixtures above and lose no allergen on the tune half, then took the one with the fewest
+danger false alarms. No setting with a stricter "worth checking" margin keeps 29/30.
 
 ## Honest limitations
 
@@ -214,10 +220,16 @@ a second pair of eyes.
   recorded in `KNOWN_MISSES` rather than quietly added to the vocabulary, because a seed list that
   absorbs every failure stops being a test of generalisation.
 - **Known false alarm:** `fresh parsley` draws a soft "worth checking" against gluten.
-- **Noisy with many allergens at once.** The fixtures check one family per ingredient. Checked
-  against the nine major allergens at once, 28 of 40 everyday ingredients get at least one flag,
-  and 7 get a danger flag, such as courgette as gluten and thyme as soy. Most are soft "worth
-  checking" flags. `node tests/noise.mjs` measures it, and fails if it gets worse.
+- **"Worth checking" is noisy with many allergens at once.** The fixtures check one family per
+  ingredient. On the held-out half of the labelled set, each ingredient checked against all 16
+  families, 61% of the families an ingredient does not contain still get a "worth checking"
+  flag, and 2% get a danger flag. It catches 89% of the allergens that are there, 19% at danger
+  level (`node tests/multi.mjs`). Checked against the nine major allergens, 28 of 40 everyday
+  ingredients get a flag and 1 gets a danger flag, courgette as gluten (`node tests/noise.mjs`).
+  With the demo profile no recipe in the bank comes back fully clear, so tick "Include worth
+  checking recipes" to plan a week (`node tests/plan.mjs`). The danger level is much cleaner
+  than it was. The caution level can only get stricter by missing allergens like burrata and
+  orzo, which this model only places weakly.
 - The recipe bank is 22 dishes — a demonstration, not a cookbook. `data/recipes.json` is plain JSON.
 - bge-small is an English model. Ingredient names in other scripts will not embed meaningfully.
 - Severity affects ranking and wording, not the thresholds.

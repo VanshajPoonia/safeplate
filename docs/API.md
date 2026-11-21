@@ -126,10 +126,20 @@ Every line you send comes back, in order.
 ### How to show the levels
 
 Treat `danger` as "do not serve without checking the recipe". Treat `caution` as "ask the
-kitchen". `caution` is noisy when you watch many allergens at once. Checked against the nine
-major allergens at once, 28 of 40 everyday ingredients got at least one flag and 7 got a
-`danger` flag, for example courgette as gluten and thyme as soy. One of the seven, vegetable
-stock, often does contain wheat or soy. `node tests/noise.mjs` reproduces this.
+kitchen". `caution` is noisy when you watch many allergens at once.
+
+Measured on a held-out set of 132 labelled ingredients, each checked against all 16 families
+(`node tests/multi.mjs`):
+
+| | Share |
+|---|---|
+| Allergens present that get a flag | 89% (19% as `danger` or `avoid`) |
+| Absent allergens that still get a `caution` flag | 61% |
+| Absent allergens that get a `danger` or `avoid` flag | 2% |
+
+Checked against the nine major allergens, 28 of 40 everyday ingredients got some flag and 1
+got a `danger` flag, courgette as gluten (`node tests/noise.mjs`). So a clean result is rare
+when many allergens are watched, and a `caution` flag on its own is weak evidence.
 
 On the labelled fixture set, checking one allergen per ingredient, it flags 29 of 30 real
 allergens with 1 false alarm. `npm test` reproduces that.
