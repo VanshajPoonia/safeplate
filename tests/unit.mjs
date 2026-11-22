@@ -112,6 +112,13 @@ await test('a listed food gets a definite answer from the list', async () => {
   assert.ok(kumquat.flags.every((f) => f.source === 'model'));
 });
 
+await test('list reasons agree with plural names', async () => {
+  const [crumbs, hummus] = (await checker.check('panko breadcrumbs\nhummus', ['treenut', 'dairy'])).ingredients;
+  assert.ok(crumbs.excused.some((e) => e.reason === 'Breadcrumbs contain no tree nuts.'));
+  assert.ok(crumbs.flags.some((f) => /^Breadcrumbs sometimes contain dairy,/.test(f.reason)));
+  assert.ok(hummus.excused.some((e) => e.reason === 'Hummus contains no dairy.'));
+});
+
 await test('a listed food stays soft for avoid-only severities', async () => {
   const r = await checker.check('bacon', [{ allergen: 'pork', severity: 'avoid' }]);
   assert.equal(r.ingredients[0].flags[0].level, 'avoid');
