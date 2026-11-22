@@ -227,7 +227,9 @@ function renderScan(results, verdict) {
               <span class="hicon">${iconFor(f)}</span>
               <span class="hlabel">${esc(f.label)}</span>
               <span class="hreason">${esc(f.reason)}</span>
-              <span class="hscore" title="cosine similarity">${f.similarity.toFixed(2)}</span>
+              ${f.source === 'list'
+                ? '<span class="hscore" title="from the list of common foods, not a guess">known</span>'
+                : `<span class="hscore" title="cosine similarity">${f.similarity.toFixed(2)}</span>`}
             </div>`).join('')}
           ${r.excused.map((e) => `<div class="hit excused"><span class="hicon">✓</span><span class="hreason">${esc(e.reason)}</span></div>`).join('')}
           ${!r.flags.length && !r.excused.length ? '<div class="hit clear">Clear</div>' : ''}
