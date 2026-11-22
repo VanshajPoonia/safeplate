@@ -63,9 +63,10 @@ The real answer to the request above:
           "label": "Gluten / wheat",
           "level": "danger",
           "severity": "severe",
-          "reason": "Close in meaning to soy sauce. Soy sauce is usually brewed with wheat.",
+          "reason": "Soy sauce is usually brewed with wheat.",
           "matched": "soy sauce",
           "hidden": false,
+          "source": "list",
           "similarity": 0.86,
           "margin": 0.24
         }
@@ -75,24 +76,20 @@ The real answer to the request above:
     {
       "text": "2 tsp nutmeg",
       "readAs": "nutmeg",
-      "flags": [
+      "flags": [],
+      "excused": [
         {
           "allergen": "gluten",
           "label": "Gluten / wheat",
-          "level": "caution",
-          "severity": "severe",
-          "reason": "Closer to malt than to everyday foods. Malt is usually made from barley, which contains gluten. Worth checking the label.",
-          "matched": "malt",
-          "hidden": false,
-          "similarity": 0.588,
-          "margin": 0.002
-        }
-      ],
-      "excused": [
+          "matched": "nutmeg",
+          "source": "list",
+          "reason": "Nutmeg contains no gluten."
+        },
         {
           "allergen": "treenut",
           "label": "Tree nuts",
           "matched": "nutmeg",
+          "source": "list",
           "reason": "A seed spice, not a tree nut."
         }
       ]
@@ -118,31 +115,31 @@ Every line you send comes back, in order.
 | `ingredients[].readAs` | What the model actually compared, after stripping quantities and prep words. Show it when a result looks odd. |
 | `flags[].level` | `danger`: reads as the allergen. `caution`: closer to the allergen than to everyday food, worth a label check. `avoid`: a strong match on a `mild` or `avoid` severity. |
 | `flags[].reason` | One or two plain sentences: what it matched and the fact behind it. Safe to show to customers. |
-| `flags[].matched` | The seed term it matched, like `soy sauce` or `casein`. |
+| `flags[].source` | `list` when the answer came from the list of 453 known foods, `model` when the embedding scored it. A `list` flag comes from a hand-written row about a common food. A `model` flag is a judgement by meaning. |
+| `flags[].matched` | The known food or seed term it matched, like `soy sauce` or `casein`. |
 | `flags[].hidden` | `true` when the match is a hidden source, like burger buns for sesame. |
-| `flags[].similarity`, `margin` | Raw scores. `margin` is similarity to the allergen minus similarity to everyday food. Higher is a stronger match. |
-| `excused` | Matches the false-friend guard cleared, with the reason. Coconut milk is not dairy. Nutmeg is not a tree nut. |
+| `flags[].similarity`, `margin` | Raw model scores, also given for `list` flags. `margin` is similarity to the allergen minus similarity to everyday food. Higher is a stronger match. |
+| `excused` | Families the model would have flagged but the food list or the false-friend guard cleared, with the reason and a `source`. Coconut milk is not dairy. Nutmeg is not a tree nut. |
 
 ### How to show the levels
 
 Treat `danger` as "do not serve without checking the recipe". Treat `caution` as "ask the
-kitchen". `caution` is noisy when you watch many allergens at once.
+kitchen". A `caution` flag from the list means some recipes or brands have that allergen. A
+`caution` flag from the model is weak evidence, and it is noisy when you watch many allergens.
 
 Measured on a held-out set of 132 labelled ingredients, each checked against all 16 families
-(`node tests/multi.mjs`):
+(`node tests/multi.mjs`). The food list covers 47 of them:
 
-| | Share |
-|---|---|
-| Allergens present that get a flag | 89% (19% as `danger` or `avoid`) |
-| Absent allergens that still get a `caution` flag | 61% |
-| Absent allergens that get a `danger` or `avoid` flag | 2% |
+| | All 132 | 47 on the list | 85 not on the list |
+|---|---|---|---|
+| Allergens present that get a flag | 91% | 100% | 88% |
+| ...as `danger` or `avoid` | 31% | 100% | 10% |
+| Absent allergens that get any flag | 41% | 1% | 63% |
+| Absent allergens that get `danger` or `avoid` | 2% | 0% | 3% |
 
-Checked against the nine major allergens, 28 of 40 everyday ingredients got some flag and 1
-got a `danger` flag, courgette as gluten (`node tests/noise.mjs`). So a clean result is rare
-when many allergens are watched, and a `caution` flag on its own is weak evidence.
-
-On the labelled fixture set, checking one allergen per ingredient, it flags 29 of 30 real
-allergens with 1 false alarm. `npm test` reproduces that.
+Checked against the nine major allergens, 4 of 40 everyday ingredients got some flag and none
+got a `danger` flag (`node tests/noise.mjs`). On the labelled fixture set, checking one allergen
+per ingredient, it flags 29 of 30 real allergens. `npm test` reproduces both.
 
 ### Errors
 
@@ -191,7 +188,7 @@ const result = await check(
   ['dairy', 'gluten', 'tree nuts'],
 );
 result.ingredients[1].flags[0].reason;
-// "Close in meaning to soy sauce. Soy sauce is usually brewed with wheat."
+// "Soy sauce is usually brewed with wheat."
 ```
 
 `check()` loads the model once and reuses it. For more control:

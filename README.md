@@ -9,11 +9,16 @@ the words somebody already thought of.
 
 SafePlate compares **meaning** instead of spelling. Every ingredient is embedded with
 `bge-small-en-v1.5` running inside the browser tab and scored against the allergen families the
-person actually reacts to. `labneh`, `surimi`, `panko`, `gomasio`, `freekeh` and `pignoli` all get
-flagged. None of those words appear anywhere in this repository's vocabulary.
+person actually reacts to. The model flags `labneh`, `surimi`, `panko`, `gomasio`, `freekeh` and
+`pignoli`, and none of them is in its seed vocabulary. Since 2026-11-22 a hand-written list of 453
+common foods is checked first, and the model handles every name the list does not know.
 
-Measured on the 54-ingredient fixture set in [`tests/fixtures.js`](tests/fixtures.js):
-**29 of 30 real allergens flagged, 1 false alarm out of 24 safe ingredients.** Run `npm test`.
+Measured on the 54-ingredient fixture set in [`tests/fixtures.js`](tests/fixtures.js), the model
+alone flags **29 of 30 real allergens, with 1 false alarm out of 24 safe ingredients**
+(`KNOWN=0 node tests/run.mjs`). With the food list it is still 29 of 30. On a held-out set of 132
+labelled ingredients, each checked against all 16 families, the list and the model together catch
+91% of the allergens and flag 41% of the absent ones. The model alone flags 63%
+(`node tests/multi.mjs`).
 
 > **A warning aid, not a guarantee.** SafePlate flags ingredients that may contain an allergen
 > and says why. It is not medical advice. It can miss an allergen, and it cannot see
@@ -106,6 +111,10 @@ Guard rails beat threshold tuning. An ingredient can be excused from `dairy` whi
   fact about why ("Casein is a milk protein."), and the similarity.
 - **Hidden sources** — allergens behind a process word: soy sauce contains wheat, worcestershire
   contains anchovy, burger buns contain sesame.
+- **Known foods.** 453 common ingredients have a hand-written answer for each family in
+  [`lib/known.js`](lib/known.js), checked before the model. A listed food either contains a family
+  (a danger flag), sometimes contains it ("worth checking"), or is free of it (cleared, even when
+  the model would have flagged it). The app shows "known" instead of a score for these.
 - **Plan a week** — scores a 22-recipe bank against the profile, then builds seven dinners from the
   ones that pass, penalising repeated cuisines so the week is not the same dinner seven times.
 - **Shopping list** — grouped by supermarket aisle, exportable as Markdown.
@@ -117,15 +126,17 @@ flowchart TB
   P[Profile in localStorage<br/>families · severity · custom · dislikes] --> W[Vocabulary]
   C[CONTROL_FOODS<br/>30 ordinary ingredients] --> W
   I[Ingredient list] --> N[Normalise<br/>strip quantities, units, prep words]
+  N --> L{On the list of<br/>453 known foods?}
+  L -->|yes| KF[Contains: danger<br/>sometimes: worth checking<br/>free of it: cleared]
+  L -->|no| E
   W --> E[bge-small-en-v1.5 q8<br/>transformers.js · WASM or Node CPU]
-  N --> E
   E --> M[margin = sim allergen − sim ordinary food]
   M --> G{False-friend guard}
   G -->|excused| X[✓ with a reason]
-  G -->|sim ≥ 0.90, or margin ≥ 0.02| D[Danger]
+  G -->|sim ≥ 0.90, or margin ≥ 0.09 and sim ≥ 0.60| D[Danger]
   G -->|margin ≥ −0.05| K[Worth checking]
   G -->|below| S[Clear]
-  D & K & S --> V[Verdict + per-hit explanation]
+  D & K & S & KF --> V[Verdict + per-hit explanation]
   V --> Z[Week plan + shopping list]
 
   style E fill:#e7f4ee,stroke:#1f7a5c,color:#1b2420
@@ -148,9 +159,8 @@ npm install safeplate @huggingface/transformers
 ```js
 import { check } from 'safeplate';
 const result = await check(['1 tbsp light soy sauce', '2 tsp nutmeg'], ['gluten', 'tree nuts']);
-// light soy sauce: danger for gluten.
-//   "Close in meaning to soy sauce. Soy sauce is usually brewed with wheat."
-// nutmeg: excused for tree nuts ("A seed spice, not a tree nut."), soft caution for gluten.
+// light soy sauce: danger for gluten, from the food list. "Soy sauce is usually brewed with wheat."
+// nutmeg: cleared for tree nuts ("A seed spice, not a tree nut.") and for gluten.
 ```
 
 ```bash
@@ -184,15 +194,18 @@ the profile tab, save, go to *Check a recipe*, hit **Load the hard examples**, a
 
 ```bash
 npm install                                  # dev-only, for the test runner
-npm test                                     # bge-small: 29/30 flagged, 1 false alarm
+npm test                                     # bge-small with the food list: 29/30 flagged
+KNOWN=0 node tests/run.mjs                   # the model alone: 29/30 flagged, 1 false alarm
 MODEL=Xenova/all-MiniLM-L6-v2 npm test       # MiniLM: 26/30 flagged, 3 false alarms
 DTYPE=fp32 node tests/run.mjs                # fp32 weights: 29/30 flagged, 3 false alarms
 node tests/noise.mjs                         # 40 everyday foods vs 9 allergens at once
 ```
 
 `npm test` runs the eval twice. `tests/run.mjs` uses the native CPU backend in Node.
-`tests/wasm.mjs` uses onnxruntime-web's WASM backend, the one the browser runs. Both give
-29/30 and 1 false alarm.
+`tests/wasm.mjs` uses onnxruntime-web's WASM backend, the one the browser runs. Both give 29/30.
+With the food list there are 2 false alarms instead of 1. Buckwheat flour and corn tortilla are
+"worth checking" for gluten, because the list says some blends add wheat. Fresh parsley is
+cleared.
 
 ## Thresholds
 
@@ -225,16 +238,18 @@ a second pair of eyes.
   recorded in `KNOWN_MISSES` rather than quietly added to the vocabulary, because a seed list that
   absorbs every failure stops being a test of generalisation.
 - **Known false alarm:** `fresh parsley` draws a soft "worth checking" against gluten.
-- **"Worth checking" is noisy with many allergens at once.** The fixtures check one family per
-  ingredient. On the held-out half of the labelled set, each ingredient checked against all 16
-  families, 61% of the families an ingredient does not contain still get a "worth checking"
-  flag, and 2% get a danger flag. It catches 89% of the allergens that are there, 19% at danger
-  level (`node tests/multi.mjs`). Checked against the nine major allergens, 28 of 40 everyday
-  ingredients get a flag and 1 gets a danger flag, courgette as gluten (`node tests/noise.mjs`).
-  With the demo profile no recipe in the bank comes back fully clear, so tick "Include worth
-  checking recipes" to plan a week (`node tests/plan.mjs`). The danger level is much cleaner
-  than it was. The caution level can only get stricter by missing allergens like burrata and
-  orzo, which this model only places weakly.
+- **"Worth checking" is still noisy for names the food list does not know.** On the held-out half
+  of the labelled set, the list covers 47 of 132 ingredients. On those, 1% of absent families get
+  a flag and every allergen present is caught at danger level. On the other 85, which only the
+  model sees, 63% of absent families still get a flag and 10% of the allergens present are caught
+  at danger level, 88% at any level (`node tests/multi.mjs`). Checked against the nine major
+  allergens, 4 of 40 everyday ingredients get a flag and none gets a danger flag
+  (`node tests/noise.mjs`). With the demo profile, 3 of the 7 allergen-free recipes in the bank
+  now come back clear (`node tests/plan.mjs`).
+- **The food list is hand-written and conservative.** When some recipes or brands have an
+  allergen, the food is "worth checking" for it, not cleared. So coconut milk is "worth checking"
+  for tree nuts, and rice noodles and corn tortillas for gluten. A wrong row in the list would be
+  a confident mistake, so every row is something you can read and correct in one line.
 - The recipe bank is 22 dishes — a demonstration, not a cookbook. `data/recipes.json` is plain JSON.
 - bge-small is an English model. Ingredient names in other scripts will not embed meaningfully.
 - Severity affects ranking and wording, not the thresholds.
@@ -246,6 +261,7 @@ index.html            three tabs, one page
 assets/styles.css     light + dark, no framework
 lib/index.js          the library: createChecker() and check()
 lib/vocabulary.js     16 families, false friends, hidden sources, control foods, plain facts
+lib/known.js          453 common foods and what each contains, checked before the model
 lib/model.js          loads bge-small in Node or the browser
 lib/match.js          normalisation, margin scoring, thresholds, reasons. The interesting file
 lib/vectors.js        the seed vocabulary embedded ahead of time (npm run vectors)
@@ -260,6 +276,7 @@ tests/run.mjs         the eval on Node's CPU backend
 tests/wasm.mjs        the eval on the WASM backend the browser uses
 tests/noise.mjs       flags on everyday foods when 9 allergens are watched at once
 tests/unit.mjs        parsing and result shape, no model needed
+tests/known.mjs       the food list is well formed and agrees with the seed vocabulary
 tests/reasons.mjs     every seed term has a fact, and real flags carry it
 tests/api.mjs         the API handlers and a local HTTP round trip
 tests/vectors.mjs     lib/vectors.js matches the vocabulary and the model
