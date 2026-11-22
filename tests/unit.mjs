@@ -31,8 +31,8 @@ await test('parses a pasted list and strips quantities', () => {
 });
 
 await test('leaves names that start like a unit alone', () => {
-  const got = parseIngredients('gianduja\nlabneh\ngreen beans\nlemon\n3 cloves garlic\n1/2 cup milk');
-  assert.deepEqual(got.map((i) => i.readAs), ['gianduja', 'labneh', 'green beans', 'lemon', 'garlic', 'milk']);
+  const got = parseIngredients('gianduja\nlabneh\ngreen beans\nlemon\n3 cloves garlic\n1/2 cup milk\n2 cm ginger, charred\n1 inch ginger');
+  assert.deepEqual(got.map((i) => i.readAs), ['gianduja', 'labneh', 'green beans', 'lemon', 'garlic', 'milk', 'ginger', 'ginger']);
 });
 
 await test('treats each array item as one line', () => {
