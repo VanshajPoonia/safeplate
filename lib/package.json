@@ -1,6 +1,6 @@
 {
   "name": "safeplate",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Flags allergens in ingredient lists by meaning, not spelling, with a plain reason for every flag. A warning aid, not a guarantee.",
   "type": "module",
   "exports": {
@@ -10,6 +10,7 @@
     "index.js",
     "match.js",
     "model.js",
+    "known.js",
     "vocabulary.js",
     "vectors.js",
     "README.md"

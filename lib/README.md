@@ -17,12 +17,17 @@ import { check } from 'safeplate';
 
 const result = await check(['1 tbsp light soy sauce', '2 tsp nutmeg'], ['gluten', 'tree nuts']);
 result.ingredients[0].flags[0].reason;
-// "Close in meaning to soy sauce. Soy sauce is usually brewed with wheat."
+// "Soy sauce is usually brewed with wheat."
 ```
 
-The first call loads the bge-small-en-v1.5 model (35 MB, q8) and keeps it. Tested on Node 24
-and 26, and in the browser through the SafePlate app. On 30 labelled allergens under unusual names it flags 29, with 1 false
-alarm on 24 safe ingredients. It is noisier when many allergens are watched at once.
+453 common foods have a hand-written answer per allergen family and are checked first. Every
+other name goes to the bge-small-en-v1.5 model (35 MB, q8), which the first call loads and keeps.
+Tested on Node 24 and 26, and in the browser through the SafePlate app.
+
+On 30 labelled allergens under unusual names the model flags 29, with 1 false alarm on 24 safe
+ingredients. On 132 held-out ingredients checked against all 16 families, the list and the model
+together catch 91% of the allergens and flag 41% of the absent ones. The model alone flags 63%.
+Names the list does not cover are still noisy.
 
 Full docs, the result format and the measurements:
 https://github.com/VanshajPoonia/safeplate/blob/main/docs/API.md
