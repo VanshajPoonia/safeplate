@@ -35,6 +35,11 @@ await test('leaves names that start like a unit alone', () => {
   assert.deepEqual(got.map((i) => i.readAs), ['gianduja', 'labneh', 'green beans', 'lemon', 'garlic', 'milk', 'ginger', 'ginger']);
 });
 
+await test('drops a leading a or an and serving words', () => {
+  const got = parseIngredients('a scattering of pignoli\na handful of kataifi pastry\na knob of butter\nan apple');
+  assert.deepEqual(got.map((i) => i.readAs), ['pignoli', 'kataifi pastry', 'butter', 'apple']);
+});
+
 await test('treats each array item as one line', () => {
   const got = parseIngredients(['1 cup milk', '', '3 eggs']);
   assert.deepEqual(got.map((i) => i.readAs), ['milk', 'eggs']);
