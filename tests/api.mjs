@@ -57,7 +57,8 @@ await test('POST flags a dish with a reason on every flag', async () => {
   assert.equal(body.ingredients.length, 4);
   const soy = body.ingredients[1].flags.find((f) => f.allergen === 'gluten');
   assert.equal(soy.level, 'danger');
-  assert.equal(soy.reason, 'Close in meaning to soy sauce. Soy sauce is usually brewed with wheat.');
+  assert.equal(soy.reason, 'Soy sauce is usually brewed with wheat.');
+  assert.equal(soy.source, 'list');
   assert.equal(body.ingredients[2].excused.find((e) => e.allergen === 'treenut').reason, 'A seed spice, not a tree nut.');
   for (const ing of body.ingredients) for (const f of ing.flags) assert.ok(f.reason.length > 10, f.allergen);
 });

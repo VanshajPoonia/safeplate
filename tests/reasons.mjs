@@ -45,7 +45,7 @@ function exactEmbed() {
     return v;
   });
 }
-const exact = await createChecker({ embed: exactEmbed() });
+const exact = await createChecker({ embed: exactEmbed(), knownFoods: false });
 
 await test('an exact match gives the fact on its own', async () => {
   const r = await exact.check('casein', ['dairy']);
@@ -66,7 +66,8 @@ await test('custom terms and dislikes explain themselves', async () => {
   assert.equal(dislike.reason, 'Matches olives, which they dislike. Not an allergy.');
 });
 
-const real = await createChecker();
+const real = await createChecker({ knownFoods: false });
+const listed = await createChecker();
 const HARD = ['200 g labneh', 'a handful of kataifi pastry', '150 g surimi sticks', '2 tbsp gomasio',
   '100 g panko breadcrumbs', '2 tbsp light soy sauce', '1 tsp sodium caseinate', 'casein'];
 const FAMS = ['dairy', 'gluten', 'sesame', 'shellfish', 'treenut', 'fish', 'egg'];
@@ -96,6 +97,20 @@ await test('a false friend is excused with its reason', async () => {
   const r = await real.check('400 ml coconut milk\n2 tsp nutmeg', ['dairy', 'treenut']);
   assert.deepEqual(r.ingredients[0].flags, []);
   assert.equal(r.ingredients[1].excused[0].reason, 'A seed spice, not a tree nut.');
+});
+
+await test('listed foods explain themselves in plain words', async () => {
+  const r = await listed.check(['2 tbsp light soy sauce', '400 ml coconut milk', '2 tsp nutmeg', '1 tbsp pesto'],
+    ['dairy', 'gluten', 'treenut']);
+  const [soy, coconut, nutmeg, pesto] = r.ingredients;
+  assert.equal(soy.flags.find((f) => f.allergen === 'gluten').reason, 'Soy sauce is usually brewed with wheat.');
+  assert.ok(coconut.flags.every((f) => f.allergen !== 'dairy'));
+  assert.match(coconut.flags.find((f) => f.allergen === 'treenut').reason, /^Coconut milk sometimes contains tree nuts/);
+  assert.ok(nutmeg.flags.every((f) => f.allergen !== 'treenut'));
+  assert.equal(pesto.flags.find((f) => f.allergen === 'treenut').reason,
+    'Pesto contains tree nuts. Pesto is basil, pine nuts, parmesan, garlic and olive oil.');
+  assert.equal(pesto.flags.find((f) => f.allergen === 'dairy').reason, 'Pesto usually contains parmesan.');
+  for (const ing of r.ingredients) for (const f of ing.flags) assert.equal(f.source, 'list', ing.text);
 });
 
 if (failed) {

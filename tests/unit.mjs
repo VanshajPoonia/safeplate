@@ -65,6 +65,7 @@ await test('lists every family for callers', () => {
 });
 
 const checker = await createChecker({ embed: exactEmbed() });
+const modelOnly = await createChecker({ embed: exactEmbed(), knownFoods: false });
 
 await test('returns a verdict, the flagged allergens and one row per ingredient', async () => {
   const r = await checker.check('100 g casein\n1 carrot', ['dairy']);
@@ -89,13 +90,31 @@ await test('every result carries the warning-aid disclaimer', async () => {
 });
 
 await test('excuses a false friend with its reason', async () => {
-  const r = await checker.check('400 ml coconut milk', ['dairy']);
+  const r = await modelOnly.check('400 ml coconut milk', ['dairy']);
   assert.equal(r.verdict, 'safe');
   assert.equal(r.ingredients[0].excused[0].reason, 'Coconut milk contains no dairy.');
+  assert.equal(r.ingredients[0].excused[0].source, 'model');
+});
+
+await test('a listed food gets a definite answer from the list', async () => {
+  const [salmon, mayo, rice, kumquat] = (await checker.check('2 salmon fillets\nmayonnaise\nbasmati rice\nkumquat', ['fish', 'mustard', 'dairy'])).ingredients;
+  assert.deepEqual(salmon.flags.map((f) => [f.allergen, f.level, f.source]), [['fish', 'danger', 'list']]);
+  assert.equal(salmon.flags[0].reason, 'Salmon is a fish.');
+  assert.deepEqual(mayo.flags.map((f) => [f.allergen, f.level]), [['mustard', 'caution']]);
+  assert.match(mayo.flags[0].reason, /^Mayonnaise sometimes contains mustard, depending on the recipe or brand\. Check the label\.$/);
+  assert.deepEqual(rice.flags, []);
+  assert.ok(rice.excused.every((e) => e.source === 'list' && /^Rice contains no /.test(e.reason)));
+  assert.ok(kumquat.flags.every((f) => f.source === 'model'));
+});
+
+await test('a listed food stays soft for avoid-only severities', async () => {
+  const r = await checker.check('bacon', [{ allergen: 'pork', severity: 'avoid' }]);
+  assert.equal(r.ingredients[0].flags[0].level, 'avoid');
+  assert.equal(r.ingredients[0].flags[0].source, 'list');
 });
 
 await test('softens the level for avoid-only severities', async () => {
-  const r = await checker.check('bacon', [{ allergen: 'pork', severity: 'avoid' }]);
+  const r = await modelOnly.check('bacon', [{ allergen: 'pork', severity: 'avoid' }]);
   assert.equal(r.ingredients[0].flags[0].level, 'avoid');
   assert.equal(r.verdict, 'avoid');
 });
@@ -108,8 +127,8 @@ await test('lists flagged allergens most serious first', async () => {
 await test('thresholds can be overridden for tuning', async () => {
   // With exact matching an unrelated line scores margin 0, which the default caution margin flags.
   const strict = await createChecker({ embed: exactEmbed(), thresholds: { CAUTION_MARGIN: 0.01 } });
-  assert.equal((await checker.check('olives', ['dairy'])).ingredients[0].flags[0].level, 'caution');
-  assert.deepEqual((await strict.check('olives', ['dairy'])).ingredients[0].flags, []);
+  assert.equal((await checker.check('kumquat', ['dairy'])).ingredients[0].flags[0].level, 'caution');
+  assert.deepEqual((await strict.check('kumquat', ['dairy'])).ingredients[0].flags, []);
 });
 
 await test('needs at least one allergen', async () => {

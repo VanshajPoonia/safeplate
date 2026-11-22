@@ -4,5 +4,7 @@ import { createChecker, DEFAULT_MODEL } from '../lib/index.js';
 import { evaluate } from './eval.mjs';
 
 const model = process.env.MODEL || DEFAULT_MODEL;
-const checker = await createChecker({ model, dtype: process.env.DTYPE });
-await evaluate(checker, `model: ${model} (${checker.dtype}, ${checker.device})`);
+// KNOWN=0 skips the curated food list, to see what the model alone gets.
+const knownFoods = process.env.KNOWN !== '0';
+const checker = await createChecker({ model, dtype: process.env.DTYPE, knownFoods });
+await evaluate(checker, `model: ${model} (${checker.dtype}, ${checker.device}), food list ${knownFoods ? 'on' : 'off'}`);

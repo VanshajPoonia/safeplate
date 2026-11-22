@@ -18,8 +18,12 @@ console.log(`  recipes with an allergen ruled out: ${count(contains, 'unsafe')}/
 console.log(`  whole bank: ${['safe', 'check', 'unsafe'].map((v) => `${scored.filter((s) => s.verdict === v).length} ${v}`).join(', ')}`);
 
 // Passing a recipe that contains an allergen as safe is the failure that must never happen.
+// Measured 2026-11-22: 3 allergen-free recipes kept as safe. That may go up, not down.
 if (count(contains, 'safe') > 0) {
   console.error('\nFAIL: a recipe with an allergen was passed as safe');
+  process.exitCode = 1;
+} else if (count(free, 'safe') < 3) {
+  console.error('\nFAIL: fewer allergen-free recipes kept as safe than measured');
   process.exitCode = 1;
 } else {
   console.log('\nplan: PASS');
