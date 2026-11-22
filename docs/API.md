@@ -177,11 +177,14 @@ Every 200 response has a `server-timing` header with both parts, like
 
 Tested on Node 24 and 26. In Node it needs `@huggingface/transformers` 3.x installed.
 In the browser it loads transformers.js 3.7.5 from jsDelivr and the 35 MB model from the
-Hugging Face Hub, then caches both. It is not on npm yet, so copy the `lib/` folder or import
-it from this repo.
+Hugging Face Hub, then caches both. It is on npm as [`safeplate`](https://www.npmjs.com/package/safeplate).
+
+```bash
+npm install safeplate @huggingface/transformers
+```
 
 ```js
-import { check } from './lib/index.js';
+import { check } from 'safeplate';
 
 const result = await check(
   ['200 g halloumi', '1 tbsp light soy sauce', '2 tsp nutmeg'],
@@ -194,7 +197,7 @@ result.ingredients[1].flags[0].reason;
 `check()` loads the model once and reuses it. For more control:
 
 ```js
-import { createChecker, ALLERGENS, DISCLAIMER } from './lib/index.js';
+import { createChecker, ALLERGENS, DISCLAIMER } from 'safeplate';
 
 const checker = await createChecker({ onProgress: (p) => console.log(p.status) });
 const result = await checker.check(menuItem.ingredients, guest.allergens);

@@ -137,11 +137,16 @@ Nothing there is a network call, apart from the one-time 35 MB model download th
 
 ## Use it in your own software
 
-The matcher is a small ES module in [`lib/`](lib/) that runs in the browser and in Node. Menu,
-recipe and grocery tools can call it directly, or call the same code over HTTP.
+The matcher is a small ES module in [`lib/`](lib/), on npm as [`safeplate`](https://www.npmjs.com/package/safeplate).
+It runs in the browser and in Node. Menu, recipe and grocery tools can call it directly, or call the
+same code over HTTP.
+
+```bash
+npm install safeplate @huggingface/transformers
+```
 
 ```js
-import { check } from './lib/index.js';
+import { check } from 'safeplate';
 const result = await check(['1 tbsp light soy sauce', '2 tsp nutmeg'], ['gluten', 'tree nuts']);
 // light soy sauce: danger for gluten.
 //   "Close in meaning to soy sauce. Soy sauce is usually brewed with wheat."
